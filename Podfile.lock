@@ -1,0 +1,23 @@
+PODS:
+  - Alamofire (4.0.1)
+  - Freddy (3.0.0)
+  - Realm (1.1.0):
+    - Realm/Headers (= 1.1.0)
+  - Realm/Headers (1.1.0)
+  - RealmSwift (1.1.0):
+    - Realm (= 1.1.0)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.0)
+  - Freddy (~> 3.0)
+  - RealmSwift (~> 1.1.0)
+
+SPEC CHECKSUMS:
+  Alamofire: 7682d43245de14874acd142ec137b144aa1dd335
+  Freddy: 367f994c88a90dd3987293b4b1bec94a4530745a
+  Realm: ceecf1a4540c4ce9efe196fe73fa9855bce05bd8
+  RealmSwift: 838058b2db95b12cb86bd0cf209df642c33fb60a
+
+PODFILE CHECKSUM: 37577fc5f8a716951f3b349c6ec30f0dc985ebbb
+
+COCOAPODS: 1.1.0.rc.2
