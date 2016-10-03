@@ -22,8 +22,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     var model = ClassModel()
     
-    lazy var categories: Results<Category> = { self.uiRealm.objects(Category.self) }()
-    var selectedCategory: Category!
+    lazy var arrayValues: Results<ClassModel> = { self.uiRealm.objects(ClassModel.self) }()
     
     @IBOutlet var table: UITableView!
     
@@ -54,60 +53,40 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 let jsonFeed = self.jsonDict["feed"] as? NSDictionary
                 let jsonAuthor = jsonFeed?["author"] as? NSDictionary
                 
+                
                 if let jsonName = jsonAuthor?["name"] as? NSDictionary {
                     let name = jsonName["label"] as! String
                     self.model.name = name
                     
-                    
-                    if self.categories.count == 0 {
+                    if self.arrayValues.count == 0 {
                         
                         // saving in Persistentstore
                         try! self.uiRealm.write() {
                             
                             self.uiRealm.add(self.model)
-                            let defaultCategories = self.uiRealm.objects(ClassModel.self)
-                            print("defaultCategories..",defaultCategories[0].name)
-                            
-                            for category in defaultCategories {
-                                let newCategory = Category()
-                                newCategory.name = category.name
-                                self.uiRealm.add(newCategory)
-                            }
+                            let names = self.uiRealm.objects(ClassModel.self)
+                            print("names..",names[0].name)
                         }
                         // retriving data using Realm
-                        self.categories = self.uiRealm.objects(Category.self)
+                        self.arrayValues = self.uiRealm.objects(ClassModel.self)
                     }
-                     print("namesofClassModel..\(self.categories[0].name)")
+                     print("arrayValues..\(self.arrayValues[0].name)")
                     self.table.reloadData()
-                    
-                                   
-               /* if let jsonUrl = jsonAuthor?["uri"] as? NSDictionary {
-                    let url = jsonUrl["label"] as! String
-                    print("url..", url)
                 }
-                
-                if let jsonEntries = jsonFeed?["entry"] as? NSArray {
-                    print("entry..", jsonEntries.count)
-                    
-                    for elements in jsonEntries {
-                        print("elements..", elements)
-                    }
-                } */
-            }
-        }
+          }
         
     }
         
     }
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return self.categories.count
+        return self.arrayValues.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let category = categories[(indexPath as NSIndexPath).row]
+        let category = arrayValues[(indexPath as NSIndexPath).row]
         cell.textLabel?.text = category.name
         return cell
     }
