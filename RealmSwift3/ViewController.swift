@@ -17,9 +17,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var jsonArray: NSArray = []
     var arrayofdata: NSArray = []
     
-    
+    // object for Realm
     let uiRealm = try! Realm()
+    
     var model = ClassModel()
+    
+    lazy var categories: Results<Category> = { self.uiRealm.objects(Category.self) }()
+    var selectedCategory: Category!
     
     @IBOutlet var table: UITableView!
     
@@ -28,35 +32,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // Do any additional setup after loading the view, typically from a nib.
         
         self.callAPIForAlbums()
-        
     }
     
     override func didReceiveMemoryWarning() {
         
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-    }
-    
-    
-    override func viewDidAppear(_ animated: Bool) {
-        
-        super.viewDidAppear(animated)
-        //        self.arrayofdata = DBHelper.getAll() as NSArray
-        //        print("arrayofdata..", self.arrayofdata.count)
-        
-    }
-    
-    func savedinRelamDB(){
-        
-        DBHelper.addObjc(obj: self.model)
-        let arrayofdata = self.uiRealm.objects(ClassModel.self)
-        DBHelper.getAll()
-        
-//        for attributes in arrayofdata{
-//            print("realm name..",attributes)
-//        }
-        
-        // self.table.reloadData()
     }
     
     
@@ -75,52 +56,59 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 
                 if let jsonName = jsonAuthor?["name"] as? NSDictionary {
                     let name = jsonName["label"] as! String
-                    print("name..", name)
-                    
                     self.model.name = name
-                    //self.savedinRelamDB()
                     
-                      do {
-                     try self.uiRealm.write() {
-                     self.uiRealm.add(self.model)
-                     DBHelper.getAll()
-                     }
-                     
-                     } catch {
-                     print("handle error")
-                     }
                     
-                }
-                if let jsonUrl = jsonAuthor?["uri"] as? NSDictionary {
+                    if self.categories.count == 0 {
+                        
+                        // saving in Persistentstore
+                        try! self.uiRealm.write() {
+                            
+                            self.uiRealm.add(self.model)
+                            let defaultCategories = self.uiRealm.objects(ClassModel.self)
+                            print("defaultCategories..",defaultCategories[0].name)
+                            
+                            for category in defaultCategories {
+                                let newCategory = Category()
+                                newCategory.name = category.name
+                                self.uiRealm.add(newCategory)
+                            }
+                        }
+                        // retriving data using Realm
+                        self.categories = self.uiRealm.objects(Category.self)
+                    }
+                     print("namesofClassModel..\(self.categories[0].name)")
+                    self.table.reloadData()
+                    
+                                   
+               /* if let jsonUrl = jsonAuthor?["uri"] as? NSDictionary {
                     let url = jsonUrl["label"] as! String
                     print("url..", url)
                 }
                 
                 if let jsonEntries = jsonFeed?["entry"] as? NSArray {
-                     print("entry..", jsonEntries.count)
+                    print("entry..", jsonEntries.count)
                     
                     for elements in jsonEntries {
                         print("elements..", elements)
                     }
-                }
+                } */
             }
         }
         
     }
-    
+        
+    }
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return self.arrayofdata.count
+        return self.categories.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
-        cell.textLabel?.text = self.arrayofdata[indexPath.row] as? String
-        print("names array..", cell.textLabel?.text)
-        print("text..", cell.textLabel?.text)
-        self.table.reloadData()
+        let category = categories[(indexPath as NSIndexPath).row]
+        cell.textLabel?.text = category.name
         return cell
     }
     
